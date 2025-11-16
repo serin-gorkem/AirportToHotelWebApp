@@ -56,3 +56,11 @@ html{
 .backface-hidden {
   backface-visibility: hidden;
 }
+input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.input:focus {
+  box-shadow: none !important;
+  border-color: var(--fallback-p, oklch(var(--p)/var(--tw-border-opacity))) !important;
+}
