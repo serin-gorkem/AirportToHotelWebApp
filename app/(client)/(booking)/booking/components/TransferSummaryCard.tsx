@@ -98,12 +98,12 @@ const TransferSummaryCard = memo(function (props: TransferSummaryCardProps) {
   }
 
   return (
-    <article className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-6 border border-gray-200">
+    <article className="bg-white rounded-xl shadow-md p-4 flex flex-col gap-6 border border-gray-200">
       {/* Title */}
       <h2 className="text-2xl font-semibold text-gray-900">Transfer Summary</h2>
 
       {/* --- OUTWARD JOURNEY --- */}
-      <div className="rounded-xl bg-gray-50 p-5 border border-gray-200 shadow-sm">
+      <div className="rounded-xl bg-gray-50 p-4 border border-gray-200 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Outward Journey
         </h3>
