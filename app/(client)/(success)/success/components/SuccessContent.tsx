@@ -4,10 +4,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useCurrency } from "../../../context/CurrencyContext";
 
-/**
- * Converts the base booking price client-side based on the selected currency.
- * Uses convertPrice() from CurrencyContext.
- */
 function useFinalPrice(clientData: any) {
   const { convertPrice } = useCurrency();
   const [finalPrice, setFinalPrice] = useState<number | null>(null);
@@ -37,18 +33,12 @@ export default function SuccessPage() {
   const [sending, setSending] = useState(false);
   const [clientData, setClientData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [cardMailSent, setCardMailSent] = useState(false);
+  const [countdown, setCountdown] = useState(5);
 
   const orderId = searchParams.get("order") || searchParams.get("uuid");
 
-  // If user reopens success page after accepted mail was already sent
-  if (clientData?.status === "accepted") {
-    alert("You already reserved.");
-    router.push("/");
-  }
-
-  /**
-   * Fetches booking details from backend
-   */
+  /** Fetch booking from backend */
   useEffect(() => {
     if (!orderId) return;
 
@@ -70,40 +60,62 @@ export default function SuccessPage() {
 
   const finalPrice = useFinalPrice(clientData);
 
-  const isReady = !loading && clientData;
-  const isCard = clientData?.status === "paid" || clientData?.payment_method === "card";
+  /** Prevent entering this page after booking is accepted */
+  useEffect(() => {
+    if (clientData?.status === "accepted") {
+      router.push("/");
+    }
+  }, [clientData, router]);
 
-  /**
-   * Manual confirmation: Used ONLY for Cash Payments
-   */
-  const handleConfirm = async () => {
-    setSending(true);
-
+  /** Auto-mail for card payments */
+  const handleConfirmCard = async () => {
     try {
-      // 1. Send confirmation email
-      await fetch("/api/send-booking-mail", {
+      const mailRes = await fetch("/api/send-booking-mail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...clientData, price: finalPrice, symbol }),
       });
 
-      // 2. Update booking status to accepted
+      console.log("Auto mail:", await mailRes.json());
+
+      // prevent refresh resend by marking accepted
       await fetch("/api/update-payment-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uuid: clientData.uuid, status: "accepted" }),
       });
     } catch (err) {
-      console.error("Cash confirmation error:", err);
+      console.error("Auto mail error:", err);
     }
-
-    router.push("/");
   };
 
-  /**
-   * Auto-confirmation: Used ONLY for Completed Card Payments (status = paid)
-   */
-  const handleConfirmCard = async () => {
+  /** Auto-mail + countdown redirect */
+  useEffect(() => {
+    if (!clientData) return;
+    if (finalPrice == null) return;
+    if (cardMailSent) return;
+
+    if (clientData.status === "paid") {
+      handleConfirmCard();
+      setCardMailSent(true);
+
+      // countdown redirect
+      const interval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            router.push("/");
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+  }, [clientData, finalPrice, cardMailSent, router]);
+
+  /** Cash payment confirm */
+  const handleConfirm = async () => {
+    setSending(true);
+
     try {
       await fetch("/api/send-booking-mail", {
         method: "POST",
@@ -111,26 +123,31 @@ export default function SuccessPage() {
         body: JSON.stringify({ ...clientData, price: finalPrice, symbol }),
       });
 
-      console.log("Auto confirmation email sent.");
+      await fetch("/api/update-payment-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uuid: clientData.uuid, status: "accepted" }),
+      });
     } catch (err) {
-      console.error("Auto mail error:", err);
+      console.error("Confirm error:", err);
     }
+
+    router.push("/");
   };
 
-  /**
-   * If payment is completed with credit card, send email automatically
-   */
-  useEffect(() => {
-    if (!clientData || !finalPrice) return;
+  /** Loading screen */
+  if (loading || !clientData) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="loading loading-spinner loading-lg text-primary"></div>
+      </div>
+    );
+  }
 
-    if (clientData.status === "paid") {
-      handleConfirmCard();
-    }
-  }, [clientData, finalPrice]);
+  const isCard =
+    clientData.status === "paid" || clientData.payment_method === "card";
 
-  /**
-   * Prepare extras list for display
-   */
+  /** Build extras list */
   const extrasList =
     clientData?.extras &&
     Object.entries(clientData.extras)
@@ -144,17 +161,6 @@ export default function SuccessPage() {
       })
       .join(", ");
 
-  /**
-   * Loading screen
-   */
-  if (!isReady) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="loading loading-spinner loading-lg text-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-[70vh] my-24 lg:m-0 flex flex-col items-center justify-center bg-base-200 rounded-box shadow-md p-8 text-center animate-fade-in">
       <h1 className="text-2xl font-semibold mb-4">
@@ -163,11 +169,11 @@ export default function SuccessPage() {
 
       <p className="text-gray-700 mb-4 whitespace-pre-line">
         {isCard
-          ? "Your credit card payment has been confirmed. Thank you for your trust."
-          : "You chose cash payment. Please pay the driver or at the counter.\nClick “Confirm & Send Mail” below to finalize your booking."}
+          ? `Your credit card payment has been confirmed.\nRedirecting in ${countdown} seconds...`
+          : "You chose cash payment. Click “Confirm & Send Mail” to finalize your booking."}
       </p>
 
-      {/* Booking Details */}
+      {/* Booking details (ALL details preserved exactly) */}
       <div className="w-full max-w-md bg-base-100 rounded-box shadow p-6 mt-4 text-left">
         <h2 className="text-lg font-semibold mb-4">Booking Details</h2>
         <ul className="space-y-2 text-sm">
@@ -235,16 +241,7 @@ export default function SuccessPage() {
         </ul>
       </div>
 
-      {/* Action Button */}
-      {isCard ? (
-        <button
-          onClick={() => router.push("/")}
-          className="btn btn-primary mt-8"
-          disabled={sending}
-        >
-          Homepage
-        </button>
-      ) : (
+      {!isCard && (
         <button
           onClick={handleConfirm}
           className="btn btn-primary mt-8"
