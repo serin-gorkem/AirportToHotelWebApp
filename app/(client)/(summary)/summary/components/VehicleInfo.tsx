@@ -29,8 +29,8 @@ const VehicleInfo = memo(function VehicleInfo({
       {/* Vehicle Image */}
       <div className="flex justify-center">
         <Image
-          src={booking.image_url || "/images/vito.webp"}
-          alt={booking.vehicle_name || "Selected Vehicle"}
+          src={booking?.image_url || "/images/vito.webp"}
+          alt={booking?.vehicle_name || "Selected Vehicle"}
           width={300}
           height={200}
           className="rounded-lg object-cover md:w-96 lg:w-80"
@@ -50,7 +50,7 @@ const VehicleInfo = memo(function VehicleInfo({
 
       {/* Vehicle Name */}
       <p className="text-md font-semibold">
-        {booking.vehicle_name || "—"}
+        {booking?.vehicle_name || "—"}
       </p>
     </article>
   );
