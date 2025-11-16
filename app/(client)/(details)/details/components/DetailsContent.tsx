@@ -31,6 +31,8 @@ function validateForm(data: FormData) {
   const nameRegex = /^[a-zA-ZçÇğĞıİöÖşŞüÜ\s]{2,}$/;
   const phoneRegex = /^(\+?\d{10,15})$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const flightTrimmed = data.flightNumber?.trim() ?? "";
+  const flightRegex = /^[A-Za-z]{1,3}\d{2,5}$/; 
 
   if (!data.name.trim()) errors.name = "First name is required.";
   else if (!nameRegex.test(data.name.trim()))
@@ -46,6 +48,13 @@ function validateForm(data: FormData) {
 
   if (!data.email.trim()) errors.email = "Email is required.";
   else if (!emailRegex.test(data.email.trim())) errors.email = "Invalid email format.";
+
+  if (!flightTrimmed) {
+    errors.flightNumber = "Flight number is required.";
+  } else if (!flightRegex.test(flightTrimmed)) {
+    errors.flightNumber =
+      "Flight number must start with letters and end with 2–5 digits. Example: TK234 or BA1023.";
+  }
 
   return {
     isValid: Object.keys(errors).length === 0,

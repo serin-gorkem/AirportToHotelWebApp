@@ -141,7 +141,7 @@ const handlePayment = async () => {
 
 
   return (
-    <div className="bg-base-100 border border-base-300 sm:w-full rounded-2xl shadow-lg flex flex-col gap-5 px-4 py-6 transition-all duration-300 hover:shadow-xl">
+    <div className="bg-base-300 border border-base-300 sm:w-full rounded-2xl shadow-lg flex flex-col gap-5 px-4 py-6 transition-all duration-300 hover:shadow-xl">
       <h1 className="text-lg font-semibold text-base-content">
         Payment Method
       </h1>
@@ -157,7 +157,7 @@ const handlePayment = async () => {
       >
         <div className="flex items-center gap-3">
           <span className="text-2xl">💳</span>
-          <span className="font-medium">Credit / Debit Card (3D Secure)</span>
+          <span className="font-medium">Credit / Debit Card</span>
         </div>
         {selectedMethod === "card" && <span className="text-xl">✅</span>}
       </div>
@@ -180,7 +180,7 @@ const handlePayment = async () => {
 
       {/* Card inputs */}
       {selectedMethod === "card" && (
-        <div className="mt-3 bg-base-200/40 p-4 rounded-xl border border-base-300">
+        <div className="mt-3 bg-base-200 p-4 rounded-xl border border-base-300">
           <label className="block text-sm font-semibold mb-1">
             Card Number
           </label>
@@ -208,7 +208,7 @@ const handlePayment = async () => {
                 onChange={(e) =>
                   setCardData((s) => ({ ...s, month: e.target.value }))
                 }
-                className="select select-bordered w-full"
+                className="select select-bordered w-full focus:outline-none "
               >
                 <option value="">MM</option>
                 {months.map((m) => (
@@ -228,7 +228,7 @@ const handlePayment = async () => {
                 onChange={(e) =>
                   setCardData((s) => ({ ...s, year: e.target.value }))
                 }
-                className="select select-bordered w-full"
+                className="select select-bordered w-full focus:outline-none"
               >
                 <option value="">YY</option>
                 {years.map((y) => (
