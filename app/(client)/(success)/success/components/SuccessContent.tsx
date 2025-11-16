@@ -1,22 +1,29 @@
 "use client";
+
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useCurrency } from "../../../context/CurrencyContext";
 
+/**
+ * Converts the base booking price client-side based on the selected currency.
+ * Uses convertPrice() from CurrencyContext.
+ */
 function useFinalPrice(clientData: any) {
   const { convertPrice } = useCurrency();
   const [finalPrice, setFinalPrice] = useState<number | null>(null);
 
   useEffect(() => {
     if (!clientData) return;
-    const fetchConvertedPrice = async () => {
+
+    const calculate = async () => {
       const basePrice = clientData?.booking?.total_price ?? clientData?.price;
-      if (basePrice) {
-        const converted = await convertPrice(basePrice);
-        setFinalPrice(Math.round(converted));
-      }
+      if (!basePrice) return;
+
+      const converted = await convertPrice(basePrice);
+      setFinalPrice(Math.round(converted));
     };
-    fetchConvertedPrice();
+
+    calculate();
   }, [clientData, convertPrice]);
 
   return finalPrice;
@@ -26,17 +33,22 @@ export default function SuccessPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { symbol } = useCurrency();
+
   const [sending, setSending] = useState(false);
   const [clientData, setClientData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const orderId = searchParams.get("order") || searchParams.get("uuid");
-  
-  if(clientData?.status === "accepted"){
-    alert("You already reserved.")
+
+  // If user reopens success page after accepted mail was already sent
+  if (clientData?.status === "accepted") {
+    alert("You already reserved.");
     router.push("/");
   }
 
+  /**
+   * Fetches booking details from backend
+   */
   useEffect(() => {
     if (!orderId) return;
 
@@ -52,44 +64,73 @@ export default function SuccessPage() {
         setLoading(false);
       }
     };
+
     fetchBooking();
   }, [orderId]);
 
   const finalPrice = useFinalPrice(clientData);
 
-  // ✅ Tüm veriler geldiyse gösterilecek koşul
   const isReady = !loading && clientData;
+  const isCard = clientData?.status === "paid" || clientData?.payment_method === "card";
 
-const handleConfirm = async () => {
-  setSending(true);
-  try {
-    // 1️⃣ Mail gönder
-    const mailRes = await fetch("/api/send-booking-mail", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...clientData, price: finalPrice, symbol }),
-    });
+  /**
+   * Manual confirmation: Used ONLY for Cash Payments
+   */
+  const handleConfirm = async () => {
+    setSending(true);
 
-    const mailResult = await mailRes.json();
-    console.log("Mail sent:", mailResult);
+    try {
+      // 1. Send confirmation email
+      await fetch("/api/send-booking-mail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...clientData, price: finalPrice, symbol }),
+      });
 
-    // 2️⃣ Status 'accepted' olarak güncelle
-    const updateRes = await fetch("/api/update-payment-status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uuid: clientData.uuid, status: "accepted" }),
-    });
+      // 2. Update booking status to accepted
+      await fetch("/api/update-payment-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uuid: clientData.uuid, status: "accepted" }),
+      });
+    } catch (err) {
+      console.error("Cash confirmation error:", err);
+    }
 
-    const updateResult = await updateRes.json();
-    console.log("Payment status updated:", updateResult);
-  } catch (err) {
-    console.error("Mail or update error:", err);
-  }
+    router.push("/");
+  };
 
-  // 3️⃣ Anasayfaya yönlendir
-  router.push("/");
-};
+  /**
+   * Auto-confirmation: Used ONLY for Completed Card Payments (status = paid)
+   */
+  const handleConfirmCard = async () => {
+    try {
+      await fetch("/api/send-booking-mail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...clientData, price: finalPrice, symbol }),
+      });
 
+      console.log("Auto confirmation email sent.");
+    } catch (err) {
+      console.error("Auto mail error:", err);
+    }
+  };
+
+  /**
+   * If payment is completed with credit card, send email automatically
+   */
+  useEffect(() => {
+    if (!clientData || !finalPrice) return;
+
+    if (clientData.status === "paid") {
+      handleConfirmCard();
+    }
+  }, [clientData, finalPrice]);
+
+  /**
+   * Prepare extras list for display
+   */
   const extrasList =
     clientData?.extras &&
     Object.entries(clientData.extras)
@@ -103,7 +144,9 @@ const handleConfirm = async () => {
       })
       .join(", ");
 
-  // ✅ Veriler tam yüklenene kadar hiçbir şey render edilmez
+  /**
+   * Loading screen
+   */
   if (!isReady) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
@@ -111,8 +154,6 @@ const handleConfirm = async () => {
       </div>
     );
   }
-
-  const isCard = clientData.status === "paid" || clientData.payment_method === "card";
 
   return (
     <div className="min-h-[70vh] my-24 lg:m-0 flex flex-col items-center justify-center bg-base-200 rounded-box shadow-md p-8 text-center animate-fade-in">
@@ -126,6 +167,7 @@ const handleConfirm = async () => {
           : "You chose cash payment. Please pay the driver or at the counter.\nClick “Confirm & Send Mail” below to finalize your booking."}
       </p>
 
+      {/* Booking Details */}
       <div className="w-full max-w-md bg-base-100 rounded-box shadow p-6 mt-4 text-left">
         <h2 className="text-lg font-semibold mb-4">Booking Details</h2>
         <ul className="space-y-2 text-sm">
@@ -192,6 +234,8 @@ const handleConfirm = async () => {
           </li>
         </ul>
       </div>
+
+      {/* Action Button */}
       {isCard ? (
         <button
           onClick={() => router.push("/")}
