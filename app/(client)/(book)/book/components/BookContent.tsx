@@ -11,7 +11,7 @@ export default function BookContent() {
     <section
       id="home"
       aria-labelledby="booking-heading"
-      className="relative flex flex-col h-svh overflow-hidden sm:gap-5 lg:gap-10"
+      className="relative flex flex-col overflow-hidden sm:gap-5 lg:gap-10"
     >
       {/* === Background Image === */}
       <Image
