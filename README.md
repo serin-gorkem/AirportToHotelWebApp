@@ -163,6 +163,24 @@ git clone https://github.com/serin-gorkem/AirportToHotelWebApp.git
 cd AirportToHotelWebApp
 npm install
 npm run dev
+```
+---
 
+## Overall Summary
 
+AirportToHotels demonstrates a fullstack approach to building a real booking system under practical, real-world constraints.
 
+The project includes **real online payments**, **distance-based pricing**, **server-side business logic**, and **SEO-oriented rendering**, combined with an **admin-controlled CMS-like panel for managing pricing without redeployment.**
+
+A time-bound booking session model ensures pricing consistency and prevents stale reservations, reflecting how production booking systems operate in practice.
+
+**Overall, the platform is designed to be maintainable and extensible, prioritizing clarity, operational control, and scalability over premature complexity.**
+
+---
+## Author
+
+Görkem Serin
+Fullstack Web Developer
+
+Portfolio: https://gorkemserin.com
+Email: gorkemserin@outlook.com
