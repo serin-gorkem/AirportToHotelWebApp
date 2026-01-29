@@ -1,5 +1,13 @@
 # AirportToHotels — Airport Transfer Booking Platform
 
+### Key Capabilities
+
+- **SEO-first Next.js architecture**
+- **Distance-based dynamic pricing**
+- **Real payments (Garanti BBVA Virtual POS)**
+- **Admin-controlled pricing (CMS-like panel)**
+- **Step-based booking with session timeout**
+
 A **production-grade airport transfer booking platform** with **real payments (cash / credit card)**, **distance-based pricing**, and an **SEO-first architecture**.
 
 Live: https://www.airporttohotels.com  
@@ -93,6 +101,7 @@ Through the admin panel:
 - **Airport base prices and pricing multipliers can be updated**
 - **Pricing behavior can be adjusted in real time**
 - **Changes are persisted directly to the database and reflected immediately on the booking flow**
+- The admin panel is intended for internal operational use and is not publicly exposed.
 
 This setup enables **non-developer operational updates** while keeping **business logic centralized and server-authoritative**.
 
@@ -109,6 +118,10 @@ The frontend only **initiates the payment process** and receives the **final con
 Bookings are finalized **only after successful payment validation**.
 
 This integration enables **real transactional flows** using a **bank-backed payment system**.
+
+```
+Payment Flow: Client → Server → Garanti BBVA → Confirmation
+```
 
 ---
 
@@ -134,13 +147,13 @@ The user interface is built with **Tailwind CSS** using a **utility-first stylin
 
 ## Technology Stack
 
-**Frontend and Backend:** Next.js 15, React 19, TypeScript  
-**Styling:** Tailwind CSS, daisyUI  
-**Database:** PostgreSQL (Neon)  
-**Maps and Distance Calculation:** Google Maps API  
-**Payments:** Garanti BBVA Virtual POS  
-**Email:** Nodemailer  
-**Deployment:** Vercel
+- **Frontend & Backend:** Next.js 15, React 19, TypeScript  
+- **Styling:** Tailwind CSS, daisyUI  
+- **Database:** PostgreSQL (Neon)  
+- **Maps & Distance:** Google Maps API  
+- **Payments:** Garanti BBVA Virtual POS  
+- **Email:** Nodemailer  
+- **Deployment:** Vercel
 
 ---
 
@@ -168,7 +181,7 @@ npm run dev
 
 ## Overall Summary
 
-AirportToHotels demonstrates a fullstack approach to building a real booking system under practical, real-world constraints.
+**AirportToHotels demonstrates a fullstack approach to building a real booking system under practical, real-world constraints.**
 
 The project includes **real online payments**, **distance-based pricing**, **server-side business logic**, and **SEO-oriented rendering**, combined with an **admin-controlled CMS-like panel for managing pricing without redeployment.**
 
