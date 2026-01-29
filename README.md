@@ -18,6 +18,8 @@ Developer: **Görkem Serin (Fullstack Web Developer)**
 
 ## Project Overview
 
+<img src="screenshots/Landing.webp" alt="Landing Page" width="600"/>
+
 AirportToHotels is a **real-world airport transfer booking platform** built to model how **transfer businesses actually operate**.  
 The project focuses on **search visibility**, **pricing accuracy**, and a **reliable multi-step booking experience**, rather than being a demo or tutorial application.
 
@@ -55,6 +57,22 @@ User input is progressively collected into a shared **client-side state object (
 At each step, **partial data can be validated and synchronized with the backend**.
 
 This design **reduces the risk of data loss**, **improves user experience**, and allows **pricing logic to react dynamically** as booking parameters change.
+
+<p align="center">
+  <strong>Booking Flow Overview</strong><br/>
+  <em>Airport → Destination → Vehicle → Details → Confirmation</em>
+</p>
+
+<p align="center" style="border:1px solid #e5e7eb; padding:12px; border-radius:8px;">
+  <img src="screenshots/booking-step-1.webp" width="24%" />
+  <img src="screenshots/booking-step-2.webp" width="24%" />
+  <img src="screenshots/booking-step-3.webp" width="24%" />
+  <img src="screenshots/booking-step-4.webp" width="24%" />
+</p>
+
+<p align="center">
+  <em>Step-based booking flow with incremental state collection and validation.</em>
+</p>
 
 ---
 
@@ -104,6 +122,11 @@ Through the admin panel:
 - The admin panel is intended for internal operational use and is not publicly exposed.
 
 This setup enables **non-developer operational updates** while keeping **business logic centralized and server-authoritative**.
+
+<p align="center" style="border:1px solid #e5e7eb; padding:12px; border-radius:8px;">
+  <img src="screenshots/admin-panel-1.webp" width="40%" />
+  <img src="screenshots/admin-panel-2.webp" width="40%" />
+</p>
 
 ---
 
