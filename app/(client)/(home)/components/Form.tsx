@@ -46,47 +46,47 @@ export default function Form() {
   const router = useRouter();
 
   const airports = [
-    { id: "IST", name: "Istanbul Airport", query: "Istanbul Airport, Turkey" },
+    { id: "IST", name: "Istanbul International", query: "Istanbul Airport, Turkey" },
     {
       id: "SAW",
-      name: "Sabiha Gökçen International Airport",
+      name: "Istanbul Sabiha Gökçen International",
       query: "Sabiha Gökçen International Airport, Turkey",
     },
     {
       id: "ADB",
-      name: "Izmir Adnan Menderes Airport",
+      name: "Izmir",
       query: "Izmir Adnan Menderes Airport, Turkey",
     },
     {
       id: "BJV",
-      name: "Milas–Bodrum Airport",
+      name: "Milas–Bodrum",
       query: "Milas–Bodrum Airport, Turkey",
     },
-    { id: "DLM", name: "Dalaman Airport", query: "Dalaman Airport, Turkey" },
-    { id: "AYT", name: "Antalya Airport", query: "Antalya Airport, Turkey" },
+    { id: "DLM", name: "Muğla Dalaman", query: "Dalaman Airport, Turkey" },
+    { id: "AYT", name: "Antalya International", query: "Antalya Airport, Turkey" },
     {
       id: "ASR",
-      name: "Kayseri Erkilet Airport",
+      name: "Kayseri Erkilet",
       query: "Kayseri Erkilet Airport, Turkey",
     },
     {
       id: "NAV",
-      name: "Nevşehir Kapadokya Airport",
+      name: "Nevşehir Kapadokya",
       query: "Nevşehir Kapadokya Airport, Turkey",
     },
     {
       id: "ESB",
-      name: "Esenboğa International Airport",
+      name: "Ankara Esenboğa International",
       query: "Esenboğa International Airport, Ankara, Turkey",
     },
     {
       id: "DNZ",
-      name: "Denizli Çardak Airport",
+      name: "Denizli Çardak",
       query: "Denizli Çardak Airport, Turkey",
     },
     {
       id: "GAP",
-      name: "Şanlıurfa GAP Airport",
+      name: "Şanlıurfa GAP",
       query: "Şanlıurfa GAP Airport, Turkey",
     },
     { id: "TZX", name: "Trabzon Airport", query: "Trabzon Airport, Turkey" },
@@ -94,7 +94,7 @@ export default function Form() {
 
   const airportRadiusKm: Record<string, number> = {
     "Istanbul International Airport": 70,
-    "Istanbul Sabiha Gökçen International Airport": 70,
+    "Sabiha Gökçen International Airport": 70,
     "Izmir Adnan Menderes Airport": 180,
     "Milas–Bodrum Airport": 70,
     "Muğla Dalaman Airport": 70,
@@ -339,7 +339,7 @@ export default function Form() {
           <option value="">Select airport</option>
           {airports.map((a) => (
             <option key={a.id} value={a.id}>
-              {a.name} ({a.id}) 
+              {a.name} ({a.id}) Airport 
             </option>
           ))}
         </select>
@@ -390,7 +390,7 @@ export default function Form() {
 
               const result = await getDrivingDistance(
                 { lat: pickupLocation.lat, lng: pickupLocation.lng },
-                { lat: place.lat, lng: place.lng }
+                { lat: place.lat, lng: place.lng },
               );
 
               const maxRadius = airportRadiusKm[pickupLocation.name] || 50;
@@ -407,10 +407,10 @@ export default function Form() {
                   `Selected drop-off (${
                     place.name
                   }) is ${result.distanceKm.toFixed(
-                    1
+                    1,
                   )} km away. Max allowed: ${maxRadius} km from ${
                     pickupLocation.name
-                  }.`
+                  }.`,
                 );
                 setDropOffLocation(null);
                 setIsDropOffLocationValid(false);
@@ -429,7 +429,7 @@ export default function Form() {
                 ? new google.maps.Circle({
                     center: new google.maps.LatLng(
                       pickupLocation.lat,
-                      pickupLocation.lng
+                      pickupLocation.lng,
                     ),
                     radius: (airportRadiusKm[pickupLocation.name] || 50) * 1000,
                   }).getBounds() || undefined
