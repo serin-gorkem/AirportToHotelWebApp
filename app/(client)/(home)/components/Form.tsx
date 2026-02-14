@@ -298,7 +298,7 @@ export default function Form() {
 
     setPickupLocation({
       id: sel.id,
-      name: sel.name,
+      name: sel.name + " Airport",
       query: sel.query,
       placeId: freshPlaceId,
       lat: info.lat,
