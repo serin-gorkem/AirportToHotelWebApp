@@ -339,7 +339,7 @@ export default function Form() {
           <option value="">Select airport</option>
           {airports.map((a) => (
             <option key={a.id} value={a.id}>
-              ({a.id}) {a.name}
+              {a.name} ({a.id}) 
             </option>
           ))}
         </select>
